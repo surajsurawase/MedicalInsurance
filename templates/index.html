@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Insurance Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='images/medical-insurance-image.webp') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        form {
+            background-color: rgba(255, 255, 255, 0.8);  /* Transparent white background for form */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        label, select, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Medical Insurance Charge Prediction</h1>
+
+<form id="insurance-form" method="POST">
+    <label for="age">Age:</label>
+    <input type="number" id="age" name="age" required>
+
+    <label for="gender">Gender:</label>
+    <select id="gender" name="gender" required></select>
+
+    <label for="bmi">BMI:</label>
+    <input type="number" id="bmi" name="bmi" step="0.1" required>
+
+    <label for="children">Number of Children:</label>
+    <input type="number" id="children" name="children" required>
+
+    <label for="smoker">Smoker:</label>
+    <select id="smoker" name="smoker" required></select>
+
+    <label for="region">Region:</label>
+    <select id="region" name="region" required></select>
+
+    <button type="submit">Predict</button>
+</form>
+
+<h2>Predicted Medical Insurance Charges: <span id="predicted-value"></span></h2>
+
+<script>
+    async function fetchOptions(endpoint, elementId) {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        const select = document.getElementById(elementId);
+        data.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.innerHTML = option.charAt(0).toUpperCase() + option.slice(1);
+            select.appendChild(opt);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchOptions('/gender_options', 'gender');
+        fetchOptions('/smoker_options', 'smoker');
+        fetchOptions('/region_options', 'region');
+    });
+
+    document.getElementById('insurance-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const response = await fetch('/prediction', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        document.getElementById('predicted-value').textContent = result['predicted Medical Insurance Charges'];
+    });
+</script>
+
+</body>
+</html>
